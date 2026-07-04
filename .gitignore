@@ -1,0 +1,30 @@
+## Core dotnet output
+[Bb]in/
+[Oo]bj/
+
+## VS Code settings and workspace
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Rider & Visual Studio cache
+.idea/
+.vs/
+
+## Operating System files
+.DS_Store
+Thumbs.db
+
+## Environment secrets (if any)
+appsettings.Development.json
+.env
