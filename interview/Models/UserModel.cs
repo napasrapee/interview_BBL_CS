@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-namespace MyWebApi.Models;
+namespace interview.Models;
 
 public record UserModel(
     [property: JsonPropertyName("id")] 

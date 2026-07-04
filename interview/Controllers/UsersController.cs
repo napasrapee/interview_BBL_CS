@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using MyWebApi.Models;
+using interview.Models;
 
-namespace MyWebApi.Controllers;
+namespace interview.Controllers;
 
 [ApiController]
 [Route("users")]
