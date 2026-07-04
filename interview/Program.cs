@@ -1,9 +1,11 @@
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
-
-// แสดงคำว่า Hello World ที่หน้าแรกของ localhost
 app.MapGet("/", () => "Hello World");
+app.MapControllers();
 
 app.Run();
