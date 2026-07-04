@@ -6,6 +6,7 @@ namespace MyWebApi.Controllers;
 
 [ApiController]
 [Route("users")]
+[Produces("application/json")] 
 public class UsersController : ControllerBase
 {
     private static readonly List<UserModel> _users;
@@ -38,33 +39,40 @@ public class UsersController : ControllerBase
     public IActionResult GetUserById(long userId)
     {
         var user = _users.FirstOrDefault(u => u.Id == userId);
-        if (user == null) 
+        if (user == null)
         {
-            return NotFound(new { message = "User not found" });
+            return NotFound(new { error = "User not found" });
         }
         return Ok(user);
     }
     [HttpPost]
     public IActionResult CreateUser([FromBody] UserModel newUserInput)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         long newId = _users.Any() ? _users.Max(u => u.Id) + 1 : 1;
-        
         var userToSave = newUserInput with { Id = newId };
-        
         _users.Add(userToSave);
+
         return CreatedAtAction(nameof(GetUserById), new { userId = userToSave.Id }, userToSave);
     }
     [HttpPut("{userId}")]
     public IActionResult UpdateUser(long userId, [FromBody] UserModel updatedUserInput)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var index = _users.FindIndex(u => u.Id == userId);
         if (index == -1)
         {
-            return NotFound(new { message = "User not found" });
+            return NotFound(new { error = "User not found" });
         }
         var updatedUser = updatedUserInput with { Id = userId };
         _users[index] = updatedUser;
-
         return Ok(updatedUser);
     }
     [HttpDelete("{userId}")]
@@ -75,8 +83,7 @@ public class UsersController : ControllerBase
         {
             return NotFound(new { message = "User not found" });
         }
-
         _users.Remove(user);
-        return Ok(new { message = $"User with ID {userId} has been deleted." });
+        return NoContent(); 
     }
 }
