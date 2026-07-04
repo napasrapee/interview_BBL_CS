@@ -67,14 +67,15 @@ public class UsersControllerTests
     [Fact]
     public void UpdateUser_ReturnsOkResult_WithUpdatedData()
     {
-        _mockRepo.Setup(repo => repo.FindIndex(1)).Returns(0);
+        _mockRepo.Setup(repo => repo.FindIndex(1)).Returns(0); 
         var controller = new UsersController(_mockRepo.Object);
         var updatedData = new UserModel(1, "Updated Name", "updatedusername", "update@email.com", "999", "new.com");
-        var result = _controller.UpdateUser(1, updatedData);
+        var result = controller.UpdateUser(1, updatedData); 
+
         var okResult = Assert.IsType<OkObjectResult>(result);
         var returnedUser = Assert.IsType<UserModel>(okResult.Value);
         Assert.Equal("Updated Name", returnedUser.Name);
-        _mockRepo.Verify(repo => repo.Update(0, It.IsAny<UserModel>()), Times.Once);
+        _mockRepo.Verify(repo => repo.Update(0, It.IsAny<UserModel>()), Times.Once); 
     }
     [Fact]
     public void DeleteUser_ReturnsNoContentResult_WhenDeleteIsSuccessful()
