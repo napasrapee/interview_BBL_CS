@@ -1,6 +1,6 @@
+namespace interview.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-namespace interview.Models;
 
 public record UserModel(
     [property: JsonPropertyName("id")] 

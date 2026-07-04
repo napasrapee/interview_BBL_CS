@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
 using interview.Models;
-
+using interview.Interfaces;
 namespace interview.Controllers;
 
 [ApiController]
@@ -9,36 +8,20 @@ namespace interview.Controllers;
 [Produces("application/json")] 
 public class UsersController : ControllerBase
 {
-    private static readonly List<UserModel> _users;
-    // get user จากไฟล์ json ที่ข้อมูลมาจาก https://jsonplaceholder.typicode.com/users
-    static UsersController()
+    private readonly IUserRepository _repository;
+    public UsersController(IUserRepository repository)
     {
-        try
-        {
-            if (System.IO.File.Exists("users.json"))
-            {
-                var jsonText = System.IO.File.ReadAllText("users.json");
-                _users = JsonSerializer.Deserialize<List<UserModel>>(jsonText) ?? new List<UserModel>();
-            }
-            else
-            {
-                _users = new List<UserModel>();
-            }
-        }
-        catch
-        {
-            _users = new List<UserModel>();
-        }
+        _repository = repository;
     }
     [HttpGet]
     public IActionResult GetAllUsers()
     {
-        return Ok(_users);
+        return Ok(_repository.GetAll());
     }
     [HttpGet("{userId}")]
     public IActionResult GetUserById(long userId)
     {
-        var user = _users.FirstOrDefault(u => u.Id == userId);
+        var user = _repository.GetById(userId);
         if (user == null)
         {
             return NotFound(new { error = "User not found" });
@@ -53,12 +36,14 @@ public class UsersController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        long newId = _users.Any() ? _users.Max(u => u.Id) + 1 : 1;
+        // 🌟 เรียกใช้ฟังก์ชันผ่าน Repository แทนการจัดการ List ตรงๆ
+        long newId = _repository.GetNextId();
         var userToSave = newUserInput with { Id = newId };
-        _users.Add(userToSave);
+        _repository.Add(userToSave);
 
         return CreatedAtAction(nameof(GetUserById), new { userId = userToSave.Id }, userToSave);
     }
+
     [HttpPut("{userId}")]
     public IActionResult UpdateUser(long userId, [FromBody] UserModel updatedUserInput)
     {
@@ -66,24 +51,26 @@ public class UsersController : ControllerBase
         {
             return BadRequest(ModelState);
         }
-        var index = _users.FindIndex(u => u.Id == userId);
+
+        var index = _repository.FindIndex(userId);
         if (index == -1)
         {
             return NotFound(new { error = "User not found" });
         }
+
         var updatedUser = updatedUserInput with { Id = userId };
-        _users[index] = updatedUser;
+        _repository.Update(index, updatedUser);
         return Ok(updatedUser);
     }
     [HttpDelete("{userId}")]
     public IActionResult DeleteUser(long userId)
     {
-        var user = _users.FirstOrDefault(u => u.Id == userId);
+        var user = _repository.GetById(userId);
         if (user == null)
         {
             return NotFound(new { message = "User not found" });
         }
-        _users.Remove(user);
+        _repository.Remove(user);
         return NoContent(); 
     }
 }
